@@ -5,10 +5,6 @@ import imagemin from 'imagemin';
 import imageminPngquant from 'imagemin-pngquant';
 import imageminJpegtran from 'imagemin-jpegtran';
 
-const config = {
-  DELIVERY_URL: `https://imagedelivery.net/${process.env.DELIVERY_ID}/`,
-};
-
 export async function minImage(image) {
   return imagemin.buffer(image, {
     plugins: [
@@ -54,6 +50,13 @@ export function inMap(imageName, map) {
   return map.has(imageName);
 }
 
-export function buildUrl(id, variant = '') {
-  return `${config.DELIVERY_URL + id + variant}`;
+export function showImageSize(image, webpImage, imageName) {
+  console.log(
+    `Size ${imageName}:`,
+    '\n original',
+    image.toString().length,
+    '\n webp',
+    webpImage.toString().length,
+    '\n'
+  );
 }

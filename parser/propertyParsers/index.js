@@ -1,4 +1,4 @@
-import { prepareImage } from '../../image-loader/index.js';
+import { processImageToCloudFlare } from '../../image-loader/index.js';
 
 const parseTitleProperty = function (property) {
   const title = property.title;
@@ -26,12 +26,16 @@ const parseNumberProperty = function (property) {
   };
 };
 
-const parseFilesProperty = async function (property, map) {
+const parseFilesProperty = async function (property, options) {
   let url =
     property.files[0]?.file?.url || property.files[0]?.external?.url || null;
   let webp = '';
-  if (url) {
-    const result = await prepareImage(url, map);
+  if (url && options.imageLoader) {
+    const {
+      imageLoader: { map, loader },
+    } = options;
+
+    const result = await loader(url, map);
     url = result.url;
     webp = result.webp;
   }

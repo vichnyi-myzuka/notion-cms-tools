@@ -1,4 +1,3 @@
-import { getImagesMap } from '../image-loader/index.js';
 import { validate } from '../validation/index.js';
 import { processTitle } from './utils/index.js';
 import {
@@ -37,10 +36,7 @@ const parsePropertyObject = async function (title, property, options) {
       parsedPropertyContent = parseDateProperty(property);
       break;
     case 'files':
-      parsedPropertyContent = await parseFilesProperty(
-        property,
-        options.imagesMap
-      );
+      parsedPropertyContent = await parseFilesProperty(property, options);
       break;
     case 'rich_text':
       parsedPropertyContent = parseRichTextProperty(property);
@@ -66,15 +62,17 @@ const parsePropertyObject = async function (title, property, options) {
   };
 };
 
-const parsePageProps = async function (row, imagesMap) {
+const parsePageProps = async function (row, options) {
   const { properties } = row;
   const parsedProperties = {};
   const propertiesKeys = Object.keys(properties);
 
   for (const key of propertiesKeys) {
-    const parsedProperty = await parsePropertyObject(key, properties[key], {
-      imagesMap,
-    });
+    const parsedProperty = await parsePropertyObject(
+      key,
+      properties[key],
+      options
+    );
     parsedProperties[processTitle(key)] = parsedProperty;
   }
 
@@ -84,12 +82,9 @@ const parsePageProps = async function (row, imagesMap) {
   };
 };
 
-const parseData = async function (data, scheme = null) {
-  const imagesMap = await getImagesMap();
-  console.log('Images map is loaded.', imagesMap);
-
+const parseData = async function (data, scheme = null, options) {
   const parsed = await Promise.all(
-    data.results.map((row) => parsePageProps(row, imagesMap))
+    data.results.map((row) => parsePageProps(row, options))
   );
 
   if (scheme) {
