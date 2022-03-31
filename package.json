@@ -1,11 +1,12 @@
 {
   "name": "notion-cms-tools",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "It is an open-source pack of tools developed to create headless cms using Notion and Notion API.",
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "dotenv node ./tests/test.mjs"
+    "test": "dotenv node ./tests/test.mjs",
+    "test:content": "dotenv node ./tests/test_content.mjs"
   },
   "repository": {
     "type": "git",

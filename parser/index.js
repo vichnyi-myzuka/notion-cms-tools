@@ -82,7 +82,7 @@ const parsePageProps = async function (row, options) {
   };
 };
 
-const parseData = async function (data, scheme = null, options) {
+const parsePage = async function (data, scheme = null, options = {}) {
   const parsed = await Promise.all(
     data.results.map((row) => parsePageProps(row, options))
   );
@@ -99,44 +99,56 @@ const parseData = async function (data, scheme = null, options) {
   return parsed;
 };
 
-const parseBlock = function (block) {
+const parsePageBlock = async function (block, options) {
   const { type } = block;
+  let parsedBlockContent;
 
   switch (type) {
     case 'paragraph':
-      return parseParagraphBlock(block);
+      parsedBlockContent = parseParagraphBlock(block);
+      break;
     case 'heading_1':
-      return parseHeadingBlock(block);
+      parsedBlockContent = parseHeadingBlock(block);
+      break;
     case 'heading_2':
-      return parseHeadingBlock(block);
+      parsedBlockContent = parseHeadingBlock(block);
+      break;
     case 'heading_3':
-      return parseHeadingBlock(block);
+      parsedBlockContent = parseHeadingBlock(block);
+      break;
     case 'image':
-      return parseImageBlock(block);
+      parsedBlockContent = await parseImageBlock(block, options);
+      break;
     case 'video':
-      return parseVideoBlock(block);
+      parsedBlockContent = parseVideoBlock(block);
+      break;
     case 'bulleted_list_item':
-      return parseListBlock(block);
+      parsedBlockContent = parseListBlock(block);
+      break;
     default:
-      return {
-        type: 'undefined',
-        content: [],
-      };
+      parsedBlockContent = { type: 'undefined' };
+      break;
   }
+  return {
+    type,
+    ...parsedBlockContent,
+  };
 };
 
-const parsePage = function (page) {
+const parsePageContent = async function (page, options = {}) {
   const { results } = page;
 
-  return results
-    .map((block) => parseBlock(block))
-    .filter((block) => block.content.length !== 0); // TODO: thinks about <br> for writers
+  const parsed = await Promise.all(
+    results.map((row) => parsePageBlock(row, options))
+  );
+
+  return parsed; // TODO: thinks about <br> for writers
 };
 
 export {
   parsePropertyObject,
-  parseData,
-  parsePageProps,
-  parseBlock,
   parsePage,
+  parsePageProps,
+  parsePageBlock,
+  parsePageContent,
 };

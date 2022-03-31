@@ -6,7 +6,7 @@ const config = {
   ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY,
   SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
   BUCKET_NAME: process.env.BUCKET_NAME,
-  DELIVERY_URL: `${process.env.IMGIX_DOMAIN}/`,
+  DELIVERY_URL: `${process.env.IMGIX_DOMAIN}`,
 };
 
 const s3 = new AWS.S3({

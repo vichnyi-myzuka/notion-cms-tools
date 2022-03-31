@@ -1,5 +1,5 @@
-import { getPages } from '../index.js';
-import { parsePage } from '../parser/index.js';
+import { getPageContent, getPages } from '../index.js';
+import { parsePage, parsePageContent } from '../parser/index.js';
 import { getLoader } from '../image-loader/aws/index.js';
 function getFilter() {
   return {
@@ -12,8 +12,9 @@ function getFilter() {
 
 async function test() {
   const data = await getPages(getFilter());
+  const options = { imageLoader: await getLoader() };
   console.log('Data is loaded');
-  const parsedData = await parsePage(
+  const parsedPages = await parsePage(
     data,
     {
       properties: [
@@ -27,8 +28,11 @@ async function test() {
         'Status',
       ],
     },
-    { imageLoader: await getLoader() }
+    options
   );
+  const pageContent = await getPageContent(parsedPages[0].id);
+  const parsedPageContent = await parsePageContent(pageContent, options);
+  console.log(parsedPageContent);
 }
 
 test();

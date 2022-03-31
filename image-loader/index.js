@@ -11,7 +11,6 @@ import {
   uploadImageWithBuffer,
 } from './cloud-flare/index.js';
 import { buildImgixUrl, uploadImageToS3 } from './aws/index.js';
-import { fileTypeFromBuffer } from 'file-type';
 
 export async function loadImage(url) {
   const image = await axios({
@@ -40,8 +39,6 @@ export async function processImage(url, map, uploader, urlBuilder) {
   const { image, webpImage, imageName } = await prepareImage(url);
 
   showImageSize(image, webpImage, imageName);
-
-  console.log(imageName);
 
   const prefix = '_webp';
   const webpImageName = imageName + prefix;

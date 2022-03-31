@@ -1,5 +1,3 @@
-import { processImageToCloudFlare } from '../../image-loader/index.js';
-
 const parseTitleProperty = function (property) {
   const title = property.title;
 
