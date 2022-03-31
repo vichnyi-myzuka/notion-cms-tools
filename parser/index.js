@@ -82,7 +82,7 @@ const parsePageProps = async function (row, options) {
   };
 };
 
-const parsePage = async function (data, scheme = null, options = {}) {
+const parsePages = async function (data, scheme = null, options = {}) {
   const parsed = await Promise.all(
     data.results.map((row) => parsePageProps(row, options))
   );
@@ -147,7 +147,7 @@ const parsePageContent = async function (page, options = {}) {
 
 export {
   parsePropertyObject,
-  parsePage,
+  parsePages,
   parsePageProps,
   parsePageBlock,
   parsePageContent,

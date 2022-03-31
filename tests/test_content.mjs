@@ -1,5 +1,5 @@
 import { getPageContent, getPages } from '../index.js';
-import { parsePage, parsePageContent } from '../parser/index.js';
+import { parsePages, parsePageContent } from '../parser/index.js';
 import { getLoader } from '../image-loader/aws/index.js';
 function getFilter() {
   return {
@@ -14,7 +14,7 @@ async function test() {
   const data = await getPages(getFilter());
   const options = { imageLoader: await getLoader() };
   console.log('Data is loaded');
-  const parsedPages = await parsePage(
+  const parsedPages = await parsePages(
     data,
     {
       properties: [
