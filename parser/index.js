@@ -1,4 +1,3 @@
-import { getImagesMap } from '../image-loader/index.js';
 import { validate } from '../validation/index.js';
 import { processTitle } from './utils/index.js';
 import {
@@ -37,10 +36,7 @@ const parsePropertyObject = async function (title, property, options) {
       parsedPropertyContent = parseDateProperty(property);
       break;
     case 'files':
-      parsedPropertyContent = await parseFilesProperty(
-        property,
-        options.imagesMap
-      );
+      parsedPropertyContent = await parseFilesProperty(property, options);
       break;
     case 'rich_text':
       parsedPropertyContent = parseRichTextProperty(property);
@@ -66,15 +62,17 @@ const parsePropertyObject = async function (title, property, options) {
   };
 };
 
-const parsePageProps = async function (row, imagesMap) {
+const parsePageProps = async function (row, options) {
   const { properties } = row;
   const parsedProperties = {};
   const propertiesKeys = Object.keys(properties);
 
   for (const key of propertiesKeys) {
-    const parsedProperty = await parsePropertyObject(key, properties[key], {
-      imagesMap,
-    });
+    const parsedProperty = await parsePropertyObject(
+      key,
+      properties[key],
+      options
+    );
     parsedProperties[processTitle(key)] = parsedProperty;
   }
 
@@ -84,12 +82,9 @@ const parsePageProps = async function (row, imagesMap) {
   };
 };
 
-const parseData = async function (data, scheme = null) {
-  const imagesMap = await getImagesMap();
-  console.log('Images map is loaded.', imagesMap);
-
+const parsePage = async function (data, scheme = null, options = {}) {
   const parsed = await Promise.all(
-    data.results.map((row) => parsePageProps(row, imagesMap))
+    data.results.map((row) => parsePageProps(row, options))
   );
 
   if (scheme) {
@@ -104,44 +99,56 @@ const parseData = async function (data, scheme = null) {
   return parsed;
 };
 
-const parseBlock = function (block) {
+const parsePageBlock = async function (block, options) {
   const { type } = block;
+  let parsedBlockContent;
 
   switch (type) {
     case 'paragraph':
-      return parseParagraphBlock(block);
+      parsedBlockContent = parseParagraphBlock(block);
+      break;
     case 'heading_1':
-      return parseHeadingBlock(block);
+      parsedBlockContent = parseHeadingBlock(block);
+      break;
     case 'heading_2':
-      return parseHeadingBlock(block);
+      parsedBlockContent = parseHeadingBlock(block);
+      break;
     case 'heading_3':
-      return parseHeadingBlock(block);
+      parsedBlockContent = parseHeadingBlock(block);
+      break;
     case 'image':
-      return parseImageBlock(block);
+      parsedBlockContent = await parseImageBlock(block, options);
+      break;
     case 'video':
-      return parseVideoBlock(block);
+      parsedBlockContent = parseVideoBlock(block);
+      break;
     case 'bulleted_list_item':
-      return parseListBlock(block);
+      parsedBlockContent = parseListBlock(block);
+      break;
     default:
-      return {
-        type: 'undefined',
-        content: [],
-      };
+      parsedBlockContent = { type: 'undefined' };
+      break;
   }
+  return {
+    type,
+    ...parsedBlockContent,
+  };
 };
 
-const parsePage = function (page) {
+const parsePageContent = async function (page, options = {}) {
   const { results } = page;
 
-  return results
-    .map((block) => parseBlock(block))
-    .filter((block) => block.content.length !== 0); // TODO: thinks about <br> for writers
+  const parsed = await Promise.all(
+    results.map((row) => parsePageBlock(row, options))
+  );
+
+  return parsed; // TODO: thinks about <br> for writers
 };
 
 export {
   parsePropertyObject,
-  parseData,
-  parsePageProps,
-  parseBlock,
   parsePage,
+  parsePageProps,
+  parsePageBlock,
+  parsePageContent,
 };
